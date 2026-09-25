@@ -207,6 +207,7 @@ function checkCard(item, c) {
     article.append(h('p', {}, ...withSealIds(`The seal itself is genuine: ${sealId} sealed a file called `), h('strong', { text: `“${m.name}”` }),
       '. But this file is not identical to it. Even a tiny change — editing, re-saving or re-compressing — breaks a seal. It’s also possible that this seal belongs to a different file.'));
     if (c.trailingText) article.append(h('p', { text: 'Text was added after the seal block — that part was never sealed.' }));
+    else if (c.invalidUtf8) article.append(h('p', { text: 'The text’s character encoding was changed (it is no longer valid UTF-8).' }));
     else if (c.actual.size !== m.size) article.append(h('p', { text: `The sealed file was ${formatBytes(m.size)}; this one is ${formatBytes(c.actual.size)}.` }));
   }
   article.append(h('p', { className: 'hint' }, ...withSealIds(whoText(sealId))));

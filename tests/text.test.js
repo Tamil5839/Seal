@@ -148,6 +148,20 @@ describe('clear-sealed text', () => {
     assert.equal(report.items[0].checks[0].status, 'altered');
   });
 
+  test('invalid UTF-8 is ALTERED even where it decodes to the same text', async () => {
+    const { text } = await sealText('A replacement character: \ufffd\n');
+    assert.equal(await status(text), 'intact');
+    const bytes = utf8Encode(text);
+    const at = bytes.indexOf(0xef); // U+FFFD is EF BF BD
+    const broken = new Uint8Array(bytes.length - 2);
+    broken.set(bytes.subarray(0, at));
+    broken[at] = 0xff; // an invalid byte: decodes leniently to U+FFFD too
+    broken.set(bytes.subarray(at + 3), at + 1);
+    const report = await verifyFiles([{ name: 't.txt', bytes: broken }]);
+    assert.equal(report.items[0].checks[0].status, 'altered');
+    assert.equal(report.items[0].checks[0].invalidUtf8, true);
+  });
+
   test('already clear-sealed text cannot be embedded again', async () => {
     const { text } = await sealText('Once.\n');
     const { privateKey, publicKey } = await testIdentity(1);

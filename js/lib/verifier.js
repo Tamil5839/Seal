@@ -115,7 +115,17 @@ async function embeddedPngCheck(bytes, notes) {
 async function embeddedTextCheck(bytes) {
   const tail = Math.max(0, bytes.length - TEXT_TAIL_BYTES);
   if (lastIndexOfBytes(bytes, END_MARKER_BYTES, tail) < 0 && lastIndexOfBytes(bytes, BEGIN_MARKER_BYTES, tail) < 0) return null;
-  const block = parseClearSealed(utf8DecodeLenient(bytes));
+  let text;
+  let validUtf8 = true;
+  try {
+    text = utf8Decode(bytes);
+  } catch {
+    // Sealed text is always valid UTF-8, so this file has changed. Decode it
+    // anyway to find the seal and report on it.
+    text = utf8DecodeLenient(bytes);
+    validUtf8 = false;
+  }
+  const block = parseClearSealed(text);
   if (!block) return null;
   if (block.error) return { source: 'text', status: 'invalid', malformed: true, problem: block.error };
   let seal = null;
@@ -134,6 +144,10 @@ async function embeddedTextCheck(bytes) {
   if (check.status === 'intact' && block.trailing) {
     check.status = 'altered';
     check.trailingText = true;
+  }
+  if (check.status === 'intact' && !validUtf8) {
+    check.status = 'altered';
+    check.invalidUtf8 = true;
   }
   return check;
 }
