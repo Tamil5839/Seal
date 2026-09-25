@@ -158,6 +158,30 @@ export async function runE2E({ browser, baseUrl, filter = '' }) {
     await axe(page, 'home', a11y);
   });
 
+  await step('keyboard: skip link first, visible focus, file inputs reachable', async () => {
+    await page.keyboard.press('Tab');
+    expect(await page.evaluate(() => document.activeElement.classList.contains('skip-link')), 'the skip link is the first stop');
+    await page.keyboard.press('Enter');
+    expect(await page.evaluate(() => document.activeElement.id === 'main'), 'skip link moves focus to the main content');
+    const stops = [];
+    for (let i = 0; i < 8; i++) {
+      await page.keyboard.press('Tab');
+      stops.push(await page.evaluate(() => {
+        const el = document.activeElement;
+        if (el === document.body) return { text: '(browser chrome)', outline: 'n/a' }; // Tab wrapped past the last link
+        const style = getComputedStyle(el);
+        return { text: (el.textContent || el.getAttribute('aria-label') || '').trim().slice(0, 30), outline: style.outlineStyle };
+      }));
+    }
+    expect(stops.every((s) => s.outline !== 'none'), `every focused element shows a focus ring: ${JSON.stringify(stops)}`);
+    expect(stops.some((s) => s.text.startsWith('Create my seal')), `home actions reachable by keyboard: ${JSON.stringify(stops.map((s) => s.text))}`);
+    await go(page, '#/verify');
+    await page.focus('#verify-files');
+    const ring = await page.evaluate(() => getComputedStyle(document.querySelector('[data-verify-drop]')).outlineStyle);
+    expect(ring !== 'none', 'the drop zone shows focus when its file input is focused');
+    await go(page, '#/');
+  });
+
   await step('create: a weak passphrase is refused', async () => {
     await go(page, '#/create');
     await axe(page, 'create intro', a11y);
@@ -407,12 +431,20 @@ export async function runE2E({ browser, baseUrl, filter = '' }) {
     expect(opens, 'the new backup opens with the new passphrase');
   });
 
-  await step('second device: the layout fits a phone screen', async () => {
-    for (const screen of ['#/', '#/create', '#/seal', '#/verify', '#/my-seal', '#/about', '#/restore']) {
-      await go(phone, screen);
-      const overflow = await phone.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-      expect(overflow <= 0, `${screen} scrolls sideways by ${overflow}px`);
+  await step('second device: the layout fits phone screens (390 and 320 px wide)', async () => {
+    for (const width of [390, 320]) {
+      await phone.setViewportSize({ width, height: 800 });
+      for (const screen of ['#/', '#/create', '#/seal', '#/verify', '#/my-seal', '#/about', '#/restore']) {
+        await go(phone, screen);
+        const overflow = await phone.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+        expect(overflow <= 0, `${screen} at ${width}px scrolls sideways by ${overflow}px`);
+      }
     }
+    const cards = await verify(phone, [file(shared.poem.name, shared.poem.bytes, 'text/plain'), file(shared.revocation.name, shared.revocation.bytes)]);
+    expect(cards.length === 2, 'results render on a small screen');
+    const overflow = await phone.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow <= 0, `verify results at 320px scroll sideways by ${overflow}px`);
+    await phone.setViewportSize({ width: 390, height: 844 });
   });
 
   await step('second device: delete the seal', async () => {
