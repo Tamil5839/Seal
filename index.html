@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob:; font-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#1e1b18">
+  <meta name="description" content="Create a personal seal and use it to seal any file. Anyone can check that a sealed file is unchanged and whose seal it carries. Everything happens in your browser.">
+  <title>SEAL — personal seals for your files</title>
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/main.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="#/" aria-label="SEAL home">
+        <img src="img/favicon.svg" alt="" width="36" height="36">
+        <span class="brand-name">SEAL</span>
+      </a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="#/seal" data-nav="seal">Seal</a>
+        <a href="#/verify" data-nav="verify">Verify</a>
+        <a href="#/my-seal" data-nav="my-seal"><span class="nav-stamp" data-my-stamp aria-hidden="true"></span>My seal</a>
+        <a href="#/about" data-nav="about">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="banner banner--warning" id="support-banner" role="alert" hidden>
+    <p><strong>This browser can’t create or check seals.</strong> SEAL uses the Ed25519 signatures built into modern browsers, and this one doesn’t have them. Please update to a current version of Chrome, Edge, Firefox or Safari.</p>
+  </div>
+  <div class="banner banner--warning" id="storage-banner" role="alert" hidden>
+    <p><strong>This browser won’t let SEAL store your seal.</strong> You can still verify files. To create or use a seal, turn off private browsing or allow site data for this page.</p>
+  </div>
+
+  <main id="main" tabindex="-1">
+
+    <!-- ============================================================ HOME -->
+    <section class="screen" data-screen="home" data-title="Personal seals for your files" aria-labelledby="home-title">
+      <div class="hero">
+        <h1 id="home-title" tabindex="-1">A seal proves a file came from you <span class="nowrap">and hasn’t changed.</span></h1>
+        <p class="lede">Create your personal seal: a private key that never leaves this device, plus a unique emblem and Seal&nbsp;ID. Seal any file — an image, a PDF, a text, anything — and anyone can check it here in seconds.</p>
+        <figure class="hero-emblem">
+          <div class="emblem-frame" data-hero-emblem></div>
+          <figcaption data-hero-caption>Every seal gets its own emblem, rolled out like an ancient cylinder seal. This one is an example.</figcaption>
+        </figure>
+      </div>
+
+      <nav class="actions" aria-label="What would you like to do?">
+        <a class="action-tablet" href="#/create" data-home-create>
+          <svg class="action-icon" viewBox="0 0 48 48" aria-hidden="true"><rect x="17" y="6" width="14" height="36" rx="3"/><path d="M15 9h18M15 39h18M20 16l4 4 4-4M20 25h8M20 31l4 4 4-4"/></svg>
+          <span class="action-title" data-home-create-title>Create my seal</span>
+          <span class="action-text" data-home-create-text>Make your private key, emblem and Seal ID. Takes a minute.</span>
+        </a>
+        <a class="action-tablet" href="#/seal">
+          <svg class="action-icon" viewBox="0 0 48 48" aria-hidden="true"><path d="M12 6h17l7 7v29H12z"/><path d="M29 6v7h7"/><circle cx="24" cy="29" r="7"/><path d="M21 29l2 2 4-4"/></svg>
+          <span class="action-title">Seal a file</span>
+          <span class="action-text">Put your seal on a file so others can check it came from you.</span>
+        </a>
+        <a class="action-tablet" href="#/verify">
+          <svg class="action-icon" viewBox="0 0 48 48" aria-hidden="true"><circle cx="21" cy="21" r="12"/><path d="M30 30l11 11"/><path d="M16 21l4 4 7-8"/></svg>
+          <span class="action-title">Verify a file</span>
+          <span class="action-text">Check whether a file is unchanged and whose seal it carries.</span>
+        </a>
+      </nav>
+
+      <div data-honesty></div>
+
+      <p class="privacy-note"><svg class="inline-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z"/></svg>Everything happens in your browser. Files are never uploaded. No accounts, no tracking.</p>
+    </section>
+
+    <!-- ========================================================== CREATE -->
+    <section class="screen" data-screen="create" data-title="Create your seal" aria-labelledby="create-title" hidden>
+      <h1 id="create-title" tabindex="-1">Create your seal</h1>
+
+      <div class="step" data-step="intro">
+        <div class="notice" data-create-exists hidden>
+          <p>There is already a seal on this device: <span class="seal-id" data-create-existing-id></span>. SEAL keeps one seal per device. To make a new one, first delete this one in <a href="#/my-seal">My seal</a>.</p>
+        </div>
+        <div data-create-start>
+          <p>Your seal has two parts:</p>
+          <ul class="two-parts">
+            <li><strong>A private key</strong> that stays on this device. It signs your files. It can be used but never copied out — not even by you.</li>
+            <li><strong>A public Seal ID and emblem</strong> that you can share, so people know which seal is yours.</li>
+          </ul>
+          <p>Before your seal is saved, you’ll make an encrypted backup file protected by a passphrase. You need it to move your seal to another device, or to get it back if this browser’s data is cleared.</p>
+          <p class="form-error" data-create-error role="alert" hidden></p>
+          <div class="button-row">
+            <button type="button" class="button button--primary" data-create-begin>Create my seal</button>
+            <a class="button button--quiet" href="#/restore">I have a backup — restore my seal</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" data-step="backup" hidden>
+        <h2 tabindex="-1" data-backup-title>Protect your seal with a passphrase</h2>
+        <p>Your new Seal ID will be <span class="seal-id" data-create-new-id></span>. SEAL will now download an encrypted backup of its private key. Choose a passphrase you’ll remember — nobody can reset it for you.</p>
+        <form class="form" data-backup-form novalidate>
+          <div class="field">
+            <label for="create-pass">Passphrase</label>
+            <div class="password-row">
+              <input id="create-pass" type="password" autocomplete="new-password" spellcheck="false" autocapitalize="off" required minlength="12" aria-describedby="create-pass-hint create-pass-strength">
+              <button type="button" class="button button--small button--quiet" data-toggle-password="create-pass create-pass2" aria-pressed="false">Show</button>
+            </div>
+            <p class="hint" id="create-pass-hint">At least 12 characters. Tip: four or more random words make a strong passphrase that’s easy to remember.</p>
+            <div class="strength" id="create-pass-strength" aria-live="polite">
+              <div class="strength-bar" data-strength-bar data-level="0"><span></span><span></span><span></span><span></span></div>
+              <p class="strength-text" data-strength-text></p>
+            </div>
+          </div>
+          <div class="field">
+            <label for="create-pass2">Type it again</label>
+            <input id="create-pass2" type="password" autocomplete="new-password" spellcheck="false" autocapitalize="off" required>
+          </div>
+          <p class="form-error" data-backup-error role="alert" hidden></p>
+          <div class="button-row">
+            <button type="submit" class="button button--primary" data-backup-submit>Create encrypted backup</button>
+            <button type="button" class="button button--quiet" data-create-restart>Start over</button>
+          </div>
+          <p class="status" data-backup-status aria-live="polite"></p>
+        </form>
+      </div>
+
+      <div class="step" data-step="confirm" hidden>
+        <h2 tabindex="-1" data-confirm-title>Save your backup file</h2>
+        <p>Your browser downloaded <strong class="filename" data-backup-filename></strong>. Move it somewhere safe that isn’t only this device: a USB stick, a password manager, or your cloud storage.</p>
+        <p>The file is encrypted. Without your passphrase, it can’t be opened — by anyone.</p>
+        <div class="button-row">
+          <button type="button" class="button button--secondary" data-backup-again>Download the backup again</button>
+        </div>
+        <details class="disclosure">
+          <summary>Check that my backup works (recommended)</summary>
+          <form class="form" data-backup-test novalidate>
+            <div class="field">
+              <label for="test-backup-file">Backup file</label>
+              <input id="test-backup-file" type="file" accept=".json,application/json">
+            </div>
+            <div class="field">
+              <label for="test-backup-pass">Passphrase</label>
+              <input id="test-backup-pass" type="password" autocomplete="current-password" spellcheck="false" autocapitalize="off">
+            </div>
+            <button type="submit" class="button button--secondary">Check backup</button>
+            <p class="status" data-backup-test-status aria-live="polite"></p>
+          </form>
+        </details>
+        <form class="form confirm-form" data-confirm-form novalidate>
+          <label class="check">
+            <input type="checkbox" data-confirm-saved>
+            <span>I’ve saved my backup file somewhere safe, and I’ll remember my passphrase. I understand that if I lose both, my seal can’t be recovered.</span>
+          </label>
+          <p class="form-error" data-confirm-error role="alert" hidden></p>
+          <div class="button-row">
+            <button type="submit" class="button button--primary" data-confirm-submit disabled>Finish — keep my seal on this device</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="step" data-step="done" hidden>
+        <div class="roll-area" data-create-roll></div>
+        <h2 tabindex="-1" data-done-title>Your seal is ready</h2>
+        <div class="id-block">
+          <p class="id-label">Your Seal ID</p>
+          <p class="seal-id seal-id--large" data-create-final-id></p>
+          <button type="button" class="button button--small button--secondary" data-copy-from="[data-create-final-id]">Copy Seal ID</button>
+        </div>
+        <p>The emblem helps people recognise your seal at a glance. For a careful check, they should always compare the <strong>Seal ID</strong>.</p>
+        <div class="announce">
+          <h3>Tell people it’s yours</h3>
+          <p>A Seal ID only says who you are if you say it publicly. Put it where people already know you — your social media bio, your website, your email signature.</p>
+        </div>
+        <div class="button-row">
+          <a class="button button--primary" href="#/seal">Seal a file</a>
+          <a class="button button--secondary" href="#/my-seal">My seal and emblem</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= RESTORE -->
+    <section class="screen" data-screen="restore" data-title="Restore your seal" aria-labelledby="restore-title" hidden>
+      <h1 id="restore-title" tabindex="-1">Restore your seal from a backup</h1>
+      <div class="step" data-restore-step="form">
+        <div class="notice" data-restore-exists hidden>
+          <p>There is already a seal on this device: <span class="seal-id" data-restore-existing-id></span>. To restore a different seal, first delete this one in <a href="#/my-seal">My seal</a>.</p>
+        </div>
+        <p>Choose the backup file you saved when you created your seal (it’s called <span class="filename">seal-backup-SEAL-….json</span>), then enter its passphrase.</p>
+        <form class="form" data-restore-form novalidate>
+          <div class="dropzone" data-dropzone>
+            <input id="restore-file" class="dropzone-input" type="file" accept=".json,application/json">
+            <label for="restore-file" class="dropzone-label">
+              <span class="dropzone-title">Drop your backup file here</span>
+              <span class="dropzone-sub">or <span class="linklike">choose it</span></span>
+            </label>
+          </div>
+          <p class="status" data-restore-file-status aria-live="polite"></p>
+          <div class="field">
+            <label for="restore-pass">Passphrase</label>
+            <input id="restore-pass" type="password" autocomplete="current-password" spellcheck="false" autocapitalize="off">
+          </div>
+          <p class="form-error" data-restore-error role="alert" hidden></p>
+          <div class="button-row">
+            <button type="submit" class="button button--primary" data-restore-submit>Restore my seal</button>
+          </div>
+          <p class="status" data-restore-status aria-live="polite"></p>
+        </form>
+      </div>
+      <div class="step" data-restore-step="done" hidden>
+        <div class="roll-area" data-restore-roll></div>
+        <h2 tabindex="-1" data-restore-done-title>Your seal is restored on this device</h2>
+        <div class="id-block">
+          <p class="id-label">Your Seal ID</p>
+          <p class="seal-id seal-id--large" data-restore-final-id></p>
+        </div>
+        <div class="button-row">
+          <a class="button button--primary" href="#/seal">Seal a file</a>
+          <a class="button button--secondary" href="#/my-seal">My seal</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ SEAL -->
+    <section class="screen" data-screen="seal" data-title="Seal a file" aria-labelledby="seal-title" hidden>
+      <h1 id="seal-title" tabindex="-1">Seal a file</h1>
+
+      <div class="notice" data-seal-needs-seal hidden>
+        <p>To seal files you first need a seal of your own.</p>
+        <div class="button-row">
+          <a class="button button--primary" href="#/create">Create my seal</a>
+          <a class="button button--quiet" href="#/restore">Restore from a backup</a>
+        </div>
+      </div>
+
+      <div data-seal-main hidden>
+        <p class="sealing-as">Sealing as <span class="seal-id" data-seal-as></span></p>
+        <form class="form" data-seal-form novalidate>
+          <div class="dropzone" data-dropzone data-seal-drop>
+            <input id="seal-file" class="dropzone-input" type="file">
+            <label for="seal-file" class="dropzone-label">
+              <span class="dropzone-title">Drop a file here</span>
+              <span class="dropzone-sub">or <span class="linklike">choose a file</span> · it stays on your device</span>
+            </label>
+          </div>
+
+          <div class="file-card" data-seal-file-card hidden>
+            <div class="file-thumb" data-seal-thumb aria-hidden="true"></div>
+            <div class="file-meta">
+              <p class="file-name" data-seal-file-name></p>
+              <p class="file-info" data-seal-file-info></p>
+            </div>
+            <button type="button" class="button button--small button--quiet" data-seal-change>Choose another file</button>
+          </div>
+
+          <div data-seal-options hidden>
+            <fieldset class="field">
+              <legend>How should the seal travel with the file?</legend>
+              <label class="radio">
+                <input type="radio" name="seal-mode" value="embed" data-seal-mode-embed>
+                <span><strong>Inside the file</strong> <span class="hint" data-seal-embed-hint>You get a sealed copy that carries its own seal.</span></span>
+              </label>
+              <label class="radio">
+                <input type="radio" name="seal-mode" value="sidecar" data-seal-mode-sidecar>
+                <span><strong>As a separate .seal file</strong> <span class="hint">Your file stays exactly as it is. Share both files together.</span></span>
+              </label>
+              <p class="hint hint--note" data-seal-embed-reason hidden></p>
+            </fieldset>
+
+            <div class="field">
+              <label for="seal-note">Note <span class="optional">(optional)</span></label>
+              <textarea id="seal-note" rows="2" aria-describedby="seal-note-count seal-note-hint"></textarea>
+              <p class="hint" id="seal-note-hint">Part of the seal. Anyone checking the file will see it.</p>
+              <p class="counter" id="seal-note-count" data-seal-note-count>0 / 280</p>
+            </div>
+
+            <div class="field">
+              <label for="seal-date">Date</label>
+              <input id="seal-date" type="datetime-local" step="60" aria-describedby="seal-date-hint">
+              <p class="hint" id="seal-date-hint">This is the date you declare. It becomes part of the seal, but SEAL can’t confirm it — people will see it as “declared by the sealer”.</p>
+            </div>
+
+            <p class="form-error" data-seal-error role="alert" hidden></p>
+            <div class="button-row">
+              <button type="submit" class="button button--primary" data-seal-submit>Seal this file</button>
+            </div>
+            <p class="status" data-seal-status aria-live="polite"></p>
+          </div>
+        </form>
+
+        <div class="seal-result" data-seal-result hidden>
+          <div class="roll-area" data-seal-roll></div>
+          <h2 tabindex="-1" data-seal-result-title>Sealed</h2>
+          <p data-seal-result-text></p>
+          <div class="button-row" data-seal-downloads></div>
+          <div class="howto">
+            <h3>How to verify</h3>
+            <p class="hint">Send this with your file so people know how to check it:</p>
+            <p class="howto-text" data-seal-howto></p>
+            <button type="button" class="button button--small button--secondary" data-copy-from="[data-seal-howto]">Copy</button>
+          </div>
+          <div class="button-row">
+            <button type="button" class="button button--quiet" data-seal-another>Seal another file</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================== VERIFY -->
+    <section class="screen" data-screen="verify" data-title="Verify a file" aria-labelledby="verify-title" hidden>
+      <h1 id="verify-title" tabindex="-1">Verify a file</h1>
+      <p>Drop in the file you received. If it came with a separate <span class="filename">.seal</span> file, add that too. You can also add a revocation notice.</p>
+
+      <div class="dropzone dropzone--large" data-dropzone data-verify-drop>
+        <input id="verify-files" class="dropzone-input" type="file" multiple>
+        <label for="verify-files" class="dropzone-label">
+          <span class="dropzone-title">Drop files here</span>
+          <span class="dropzone-sub">or <span class="linklike">choose files</span> · nothing is uploaded</span>
+        </label>
+      </div>
+
+      <details class="disclosure" data-verify-paste>
+        <summary>Or paste sealed text</summary>
+        <form class="form" data-verify-paste-form novalidate>
+          <div class="field">
+            <label for="verify-text">Sealed text (including the BEGIN SEAL and END SEAL lines)</label>
+            <textarea id="verify-text" rows="6" spellcheck="false"></textarea>
+          </div>
+          <button type="submit" class="button button--secondary">Check this text</button>
+        </form>
+      </details>
+
+      <div class="file-list" data-verify-list hidden>
+        <h2 class="visually-hidden">Files being checked</h2>
+        <ul data-verify-items></ul>
+        <button type="button" class="button button--small button--quiet" data-verify-clear>Clear all</button>
+      </div>
+
+      <p class="status" data-verify-status aria-live="polite"></p>
+      <div class="results" data-verify-results aria-live="polite"></div>
+
+      <div data-honesty data-compact></div>
+    </section>
+
+    <!-- ========================================================= MY SEAL -->
+    <section class="screen" data-screen="my-seal" data-title="My seal" aria-labelledby="my-title" hidden>
+      <h1 id="my-title" tabindex="-1">My seal</h1>
+
+      <div class="notice" data-my-none hidden>
+        <p>There is no seal on this device yet.</p>
+        <div class="button-row">
+          <a class="button button--primary" href="#/create">Create my seal</a>
+          <a class="button button--quiet" href="#/restore">Restore from a backup</a>
+        </div>
+      </div>
+
+      <div data-my-main hidden>
+        <div class="my-emblems">
+          <div class="emblem-frame" data-my-band></div>
+          <div class="emblem-frame emblem-frame--round" data-my-stamp-large></div>
+        </div>
+        <div class="id-block">
+          <p class="id-label">Seal ID</p>
+          <p class="seal-id seal-id--large" data-my-id></p>
+          <button type="button" class="button button--small button--secondary" data-copy-from="[data-my-id]">Copy Seal ID</button>
+        </div>
+        <p class="hint">The emblem is for recognising your seal at a glance. When someone needs to check carefully, they should compare the Seal ID — or the full fingerprint below.</p>
+
+        <details class="disclosure">
+          <summary>Details</summary>
+          <dl class="details-list">
+            <dt>Full fingerprint</dt><dd class="mono" data-my-fingerprint></dd>
+            <dt>Public key</dt><dd class="mono" data-my-pub></dd>
+            <dt>On this device since</dt><dd data-my-since></dd>
+          </dl>
+        </details>
+
+        <div class="button-row">
+          <button type="button" class="button button--secondary" data-download-band>Download emblem (SVG)</button>
+          <button type="button" class="button button--secondary" data-download-stamp>Download round stamp (SVG)</button>
+        </div>
+
+        <section class="panel" aria-labelledby="announce-title">
+          <h2 id="announce-title">Announce your Seal ID</h2>
+          <p>Nobody can tell who owns a Seal ID unless the owner says so publicly. Add a line like this to your social media bio, website or email signature:</p>
+          <p class="howto-text" data-my-announce></p>
+          <button type="button" class="button button--small button--secondary" data-copy-from="[data-my-announce]">Copy</button>
+        </section>
+
+        <section class="panel" aria-labelledby="backup-title">
+          <h2 id="backup-title">Backup</h2>
+          <div data-reexport-unavailable>
+            <p>Your private key is stored locked on this device: it can sign, but it can’t be exported, so SEAL can’t make a new backup from it. Keep the backup file you saved when you created or restored this seal.</p>
+            <p>If you’ve lost that backup, consider creating a new seal while this one still works, and telling people about the change.</p>
+          </div>
+          <form class="form" data-reexport-form novalidate hidden>
+            <p>This seal was created or restored in this browser session, so SEAL still holds its encrypted backup. You can download it again, optionally with a new passphrase.</p>
+            <div class="field">
+              <label for="reexport-current">Current passphrase</label>
+              <input id="reexport-current" type="password" autocomplete="current-password" spellcheck="false" autocapitalize="off">
+            </div>
+            <div class="field">
+              <label for="reexport-new">New passphrase <span class="optional">(optional)</span></label>
+              <input id="reexport-new" type="password" autocomplete="new-password" spellcheck="false" autocapitalize="off" aria-describedby="reexport-new-strength">
+              <p class="strength-text" id="reexport-new-strength" data-reexport-strength aria-live="polite"></p>
+            </div>
+            <div class="field">
+              <label for="reexport-new2">New passphrase again</label>
+              <input id="reexport-new2" type="password" autocomplete="new-password" spellcheck="false" autocapitalize="off">
+            </div>
+            <p class="form-error" data-reexport-error role="alert" hidden></p>
+            <button type="submit" class="button button--secondary" data-reexport-submit>Download backup again</button>
+            <p class="status" data-reexport-status aria-live="polite"></p>
+          </form>
+        </section>
+
+        <section class="panel" aria-labelledby="revoke-title">
+          <h2 id="revoke-title">Revocation notice</h2>
+          <p>If your key is ever lost or stolen, a revocation notice tells people to stop trusting seals made with it. Make one now and keep it with your backup: if you lose your key, you won’t be able to make one any more.</p>
+          <p>Without a server, nobody learns about a revocation automatically. It only works if you publish the notice — for example next to your Seal ID — and people add it when they verify.</p>
+          <form class="form" data-revoke-form novalidate>
+            <div class="field">
+              <label for="revoke-reason">Reason <span class="optional">(optional)</span></label>
+              <input id="revoke-reason" type="text" maxlength="280" placeholder="For example: key stolen, stop trusting this seal">
+            </div>
+            <button type="submit" class="button button--secondary">Create revocation notice</button>
+            <p class="status" data-revoke-status aria-live="polite"></p>
+          </form>
+        </section>
+
+        <section class="panel" aria-labelledby="storage-title">
+          <h2 id="storage-title">Storage on this device</h2>
+          <p data-storage-status></p>
+        </section>
+
+        <section class="panel panel--danger" aria-labelledby="delete-title">
+          <h2 id="delete-title">Delete my seal from this device</h2>
+          <p>This removes your private key from this browser. Files you already sealed stay sealed, but you won’t be able to seal new files here unless you restore your backup.</p>
+          <form class="form" data-delete-form novalidate>
+            <label class="check">
+              <input type="checkbox" data-delete-confirm>
+              <span>I have my backup file and passphrase, or I no longer need this seal.</span>
+            </label>
+            <button type="submit" class="button button--danger" data-delete-submit disabled>Delete from this device</button>
+            <p class="status" data-delete-status aria-live="polite"></p>
+          </form>
+        </section>
+      </div>
+
+      <section class="panel" aria-labelledby="known-title">
+        <h2 id="known-title">Known seals</h2>
+        <p>Save the Seal IDs of people you know, so verification shows their name. Names are stored only on this device, and only you see them.</p>
+        <ul class="known-list" data-known-list></ul>
+        <p class="hint" data-known-empty>No saved seals yet.</p>
+        <form class="form form--inline" data-known-form novalidate>
+          <div class="field">
+            <label for="known-name">Name</label>
+            <input id="known-name" type="text" maxlength="80" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="known-id">Seal ID</label>
+            <input id="known-id" type="text" autocomplete="off" spellcheck="false" autocapitalize="characters" placeholder="SEAL-XXXX-XXXX-XXXX-XXXX">
+          </div>
+          <button type="submit" class="button button--secondary">Save</button>
+          <p class="form-error" data-known-error role="alert" hidden></p>
+        </form>
+      </section>
+
+      <section class="panel" aria-labelledby="saved-revocations-title" data-saved-revocations-panel hidden>
+        <h2 id="saved-revocations-title">Remembered revocation notices</h2>
+        <ul class="known-list" data-saved-revocations></ul>
+      </section>
+    </section>
+
+    <!-- =========================================================== ABOUT -->
+    <section class="screen prose" data-screen="about" data-title="About SEAL" aria-labelledby="about-title" hidden>
+      <h1 id="about-title" tabindex="-1">About SEAL</h1>
+      <p class="lede">For five thousand years, people in Mesopotamia signed clay with cylinder seals: small carved stones rolled across wet clay, leaving a picture only their seal could make. SEAL does the same for digital files, with modern cryptography instead of carved stone.</p>
+
+      <h2>How it works</h2>
+      <ol class="how-steps">
+        <li><strong>Your seal</strong> is an Ed25519 key pair made by your browser. The private key stays on this device, locked so that it can sign but can’t be copied. The public key is shared inside every seal.</li>
+        <li><strong>Your Seal ID</strong> is a short fingerprint of your public key, like <span class="seal-id">SEAL-7K3M-Q9XA-2PDF-W4HN</span>. Your emblem is drawn from the same fingerprint.</li>
+        <li><strong>Sealing</strong> computes a SHA-256 fingerprint of the file and signs it, together with the file name, size, your declared date and your note.</li>
+        <li><strong>Verifying</strong> checks the signature with the public key in the seal, then recomputes the file’s fingerprint. If a single byte changed, it won’t match.</li>
+      </ol>
+
+      <div data-honesty></div>
+
+      <h2>Where the seal goes</h2>
+      <ul>
+        <li><strong>PNG images</strong> can carry the seal inside the file (in a metadata chunk). The image itself is not changed.</li>
+        <li><strong>Plain text and Markdown</strong> can be “clear-sealed”: the seal is added at the end between <code>-----BEGIN SEAL-----</code> and <code>-----END SEAL-----</code> lines. Line endings may change (Windows or Mac style) without breaking the seal; any other edit breaks it.</li>
+        <li><strong>Any other file</strong> gets a small separate <span class="filename">.seal</span> file. Share both together; the file itself is untouched.</li>
+      </ul>
+
+      <h2>Privacy</h2>
+      <p>SEAL is a static web page. It has no server, no accounts, no analytics and no third-party code. It never uploads your files: they are read and processed in your browser. The page’s security policy forbids it from contacting any other website.</p>
+      <p>What’s stored on this device: your seal’s locked private key and public key, the names you save for known seals, and any revocation notices you choose to remember. Clearing this site’s data in your browser deletes them.</p>
+
+      <h2>Keeping your seal safe</h2>
+      <ul>
+        <li>Keep your backup file and passphrase. Browsers can clear site data — Safari does this after 7 days without a visit, unless SEAL is added to the home screen.</li>
+        <li>Anyone who can run code on this page while it’s open could use your key without copying it. Only use SEAL from a copy you trust, and keep your browser up to date.</li>
+        <li>Make a revocation notice now and keep it with your backup, in case your key is ever stolen.</li>
+      </ul>
+
+      <h2>Formats and source</h2>
+      <p>The seal formats are open and documented, so anyone can build a verifier. See <span class="filename">docs/FORMAT.md</span> and the <span class="filename">README</span> in SEAL’s source code repository.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Files are processed on your device and never uploaded. No accounts. No tracking.</p>
+    <p><a href="#/about">What a seal proves</a></p>
+  </footer>
+
+  <template id="tpl-honesty">
+    <section class="honesty">
+      <h2 class="honesty-title">What a seal proves — and what it doesn’t</h2>
+      <div class="honesty-cols">
+        <div class="honesty-col honesty-col--proves">
+          <h3><svg class="inline-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>A seal proves</h3>
+          <ul>
+            <li>This exact file was sealed by the holder of this Seal ID.</li>
+            <li>The file hasn’t changed since it was sealed — not one byte.</li>
+          </ul>
+        </div>
+        <div class="honesty-col honesty-col--not">
+          <h3><svg class="inline-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>It does not prove</h3>
+          <ul>
+            <li>That a human made it, or that no AI was used.</li>
+            <li>Who is behind a Seal ID — unless its owner announces it publicly, for example in their social media bio.</li>
+            <li>When it was sealed. The date is declared by the sealer and isn’t confirmed by anyone else.</li>
+          </ul>
+        </div>
+        <div class="honesty-col honesty-col--limits">
+          <h3><svg class="inline-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/></svg>Limits</h3>
+          <ul>
+            <li>Social platforms re-compress uploaded images. That changes the file and breaks the seal. Seals work for files shared as they are: email attachments, “send as document”, websites, cloud drives.</li>
+            <li>Losing your private key and its backup means losing your seal.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </template>
+
+  <noscript>
+    <div class="banner banner--warning"><p>SEAL runs entirely in your browser and needs JavaScript to create and check seals.</p></div>
+  </noscript>
+</body>
+</html>

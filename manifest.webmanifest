@@ -1,0 +1,13 @@
+{
+  "name": "SEAL — personal seals for your files",
+  "short_name": "SEAL",
+  "description": "Seal any file and verify sealed files, entirely in your browser.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#efe6d5",
+  "theme_color": "#1e1b18",
+  "icons": [
+    { "src": "img/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

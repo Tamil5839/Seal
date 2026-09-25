@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- A lapis cylinder seal with gold caps, rolling out an impression. -->
+  <defs>
+    <linearGradient id="lapis" x1="0" x2="1">
+      <stop offset="0" stop-color="#16305f"/><stop offset="0.45" stop-color="#4a78c9"/><stop offset="1" stop-color="#1b3a73"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" x2="1">
+      <stop offset="0" stop-color="#a77a24"/><stop offset="0.45" stop-color="#f0c665"/><stop offset="1" stop-color="#9c7020"/>
+    </linearGradient>
+  </defs>
+  <rect x="3" y="30" width="58" height="26" rx="5" fill="#c98b5e"/>
+  <path d="M8 43h14M10 37l4 4 4-4M10 49l4-4 4 4" stroke="#8f5a36" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  <rect x="30" y="6" width="22" height="50" rx="4" fill="url(#lapis)"/>
+  <rect x="29" y="4" width="24" height="7" rx="2" fill="url(#gold)"/>
+  <rect x="29" y="51" width="24" height="7" rx="2" fill="url(#gold)"/>
+  <path d="M35 17l3 4 3-4 3 4 3-4M35 27h12M35 35l3 4 3-4 3 4 3-4M35 45h12" stroke="#10254a" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.8"/>
+</svg>
