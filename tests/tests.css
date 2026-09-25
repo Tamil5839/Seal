@@ -1,0 +1,5 @@
+body { font: 15px/1.5 system-ui, sans-serif; margin: 2rem; background: #efe6d5; color: #1e1b18; }
+#results { padding-left: 1.5rem; }
+.pass { color: #2c5f2d; }
+.fail { color: #a33a2e; font-weight: 600; }
+pre { white-space: pre-wrap; font-size: 12px; background: #fff8; padding: .5rem; }
