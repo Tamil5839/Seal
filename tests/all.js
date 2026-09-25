@@ -9,6 +9,7 @@ const modules = [
   './text.test.js',
   './png.test.js',
   './backup.test.js',
+  './emblem.test.js',
 ];
 
 const summary = document.getElementById('summary');

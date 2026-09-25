@@ -1,0 +1,8 @@
+body { font: 14px/1.4 system-ui, sans-serif; background: #efe6d5; color: #1e1b18; margin: 24px; }
+#grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 18px; }
+figure { margin: 0; display: grid; grid-template-columns: 1fr 96px; gap: 10px; align-items: center; }
+figure svg { width: 100%; height: auto; display: block; }
+figcaption { grid-column: 1 / -1; font: 12px ui-monospace, monospace; }
+body.dark { background: #1e1b18; color: #efe6d5; }
+.sheet-row h3 { margin: 12px 0 4px; font-size: 13px; }
+.sheet-row svg { max-width: 100%; height: auto; background: #d9b08c; }
