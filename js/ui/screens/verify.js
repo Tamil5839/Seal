@@ -204,7 +204,7 @@ function checkCard(item, c) {
   } else if (c.status === 'intact') {
     article.append(h('p', { text: 'This exact file was sealed by the holder of this Seal ID, and not one byte has changed since.' }));
   } else {
-    article.append(h('p', {}, ...withSealIds(`The seal itself is genuine: ${sealId} sealed a file called `), h('strong', { text: `“${m.name}”` }),
+    article.append(h('p', {}, ...withSealIds(`The seal itself is valid: ${sealId} did seal a file called `), h('strong', { text: `“${m.name}”` }),
       '. But this file is not identical to it. Even a tiny change — editing, re-saving or re-compressing — breaks a seal. It’s also possible that this seal belongs to a different file.'));
     if (c.trailingText) article.append(h('p', { text: 'Text was added after the seal block — that part was never sealed.' }));
     else if (c.invalidUtf8) article.append(h('p', { text: 'The text’s character encoding was changed (it is no longer valid UTF-8).' }));
@@ -259,7 +259,7 @@ function sealOnlyCard(item) {
   const { article, heading } = card(revoked ? 'revoked' : 'none', `A seal by ${item.signer.sealId} for “${m.name}”`, revoked ? 'Revoked' : 'Seal file only');
   article.dataset.state = 'seal-only';
   article.append(h('p', { className: 'result-file', text: item.fileName }), heading);
-  article.append(h('p', {}, 'This .seal file is genuine. To check the file it belongs to, add ', h('strong', { text: m.name }), ` (${formatBytes(m.size)}) as well.`));
+  article.append(h('p', {}, 'This .seal file is valid. To check the file it belongs to, add ', h('strong', { text: m.name }), ` (${formatBytes(m.size)}) as well.`));
   if (revoked) article.append(revocationBox(item.revocation, null));
   article.append(detailsList([['Sealed by', sealIdNode(item.signer.sealId)], ['Declared date', declaredDate(m)], ['Note', noteNode(m)]]));
   return article;
@@ -289,7 +289,7 @@ function revocationCard(item) {
   const { article, heading } = card('revoked', `Revocation notice for ${item.signer.sealId}`, 'Revocation notice');
   article.dataset.state = 'revocation';
   article.append(h('p', { className: 'result-file', text: item.fileName }), heading);
-  article.append(h('p', { text: `The owner of this seal says it should no longer be trusted (declared ${formatDate(m.declared_at)}). The notice is genuine: it was signed by the seal’s own key.` }));
+  article.append(h('p', { text: `The owner of this seal says it should no longer be trusted (declared ${formatDate(m.declared_at)}). The notice is valid: it was signed by the seal’s own key.` }));
   if (m.note) article.append(h('p', {}, 'Reason given: ', h('span', { className: 'note-text', attrs: { dir: 'auto' }, text: `“${m.note}”` })));
   article.append(h('p', { className: 'hint', text: item.matched ? 'It applies to a seal you added above.' : 'It doesn’t match any seal you added here.' }));
   const saved = state.revocations.some((r) => r && r.manifest && r.manifest.pub === m.pub);

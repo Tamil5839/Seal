@@ -99,7 +99,7 @@ async function embeddedPngCheck(bytes, notes) {
   }
   // The chunk structure is damaged, so the file cannot be what was sealed
   // (sealed PNGs are always well-formed). If a seal chunk can still be found,
-  // report on it: a genuine seal on a damaged image means "altered".
+  // report on it: a valid seal on a damaged image means "altered".
   const scan = scanForSealChunks(bytes);
   if (!scan.chunks.length) {
     if (scan.damaged) return { source: 'png', status: 'invalid', malformed: true, problem: 'the embedded seal is damaged' };

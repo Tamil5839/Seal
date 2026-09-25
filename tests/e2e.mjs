@@ -154,7 +154,7 @@ export async function runE2E({ browser, baseUrl, filter = '' }) {
     for (const phrase of ['This exact file was sealed by the holder of this Seal ID', 'not one byte', 'That a human made it, or that no AI was used', 'declared by the sealer', 'Social platforms re-compress', 'Losing your private key']) {
       expect(honesty.includes(phrase), `honesty panel is missing "${phrase}"`);
     }
-    expect(!/verified human|authentic/i.test(await page.textContent('body')), 'forbidden wording on the page');
+    expect(!/verified human|authentic|genuine/i.test(await page.textContent('body')), 'forbidden wording on the page');
     await axe(page, 'home', a11y);
   });
 
@@ -307,6 +307,7 @@ export async function runE2E({ browser, baseUrl, filter = '' }) {
     edited[0] ^= 0x20; // "Clay" -> "clay"
     let cards = await verify(page, [file('poem-sealed.txt', edited, 'text/plain')]);
     expect(cards[0].state === 'altered' && /changed since it was sealed/.test(cards[0].headline), JSON.stringify(cards));
+    expect(!/verified human|authentic|genuine/i.test(cards[0].text), 'forbidden wording in a result');
     await axe(page, 'verify altered', a11y);
     const pdf = Buffer.from(PDF);
     pdf[20] ^= 1;

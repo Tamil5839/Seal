@@ -87,7 +87,7 @@ with one. You can also paste clear-sealed text. You'll see one of:
 | Result | Meaning |
 |--------|---------|
 | **Intact** (the impression glows) | Sealed by `SEAL-…`, unchanged since sealing. |
-| **Altered** (the impression cracks) | The seal is genuine, but this file has changed since it was sealed — or the seal belongs to a different file. |
+| **Altered** (the impression cracks) | The seal is valid, but this file has changed since it was sealed — or the seal belongs to a different file. |
 | **Invalid seal** | The seal's signature doesn't match its contents: it was edited, damaged or forged. It tells you nothing. |
 | **No seal found** | No seal inside the file, and no `.seal` file added. |
 | **Revoked** | A revocation notice from the seal's owner was provided (or remembered): don't trust this seal. |

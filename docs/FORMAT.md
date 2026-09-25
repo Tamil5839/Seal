@@ -161,7 +161,7 @@ covers the whole sealed file, §7).
 If the chunk structure cannot be parsed (a damaged or truncated image), the
 file cannot be the sealed original, so a verifier that still finds a seal chunk
 (for example by searching for its data prefix `seal`, NUL, four zero bytes,
-`{`) reports **altered** if that seal is genuine, and **invalid** otherwise.
+`{`) reports **altered** if that seal is valid, and **invalid** otherwise.
 
 ## 9. Embedded seal: clear-sealed text
 
@@ -201,7 +201,7 @@ can be used instead.
    removed; it is strict base64url of the seal object's UTF-8 JSON.
 5. Lines after END that contain only whitespace are ignored. If any other text
    follows the END line, that text was never sealed and the result is
-   **altered** (when the seal itself is genuine).
+   **altered** (when the seal itself is valid).
 
 A block with an END line but no BEGIN line (or the reverse) whose neighbouring
 lines look like payload is a damaged seal: **invalid**. Marker lines followed by
@@ -210,7 +210,7 @@ example, documentation of this format) and are not a seal.
 
 Sealed text is always valid UTF-8. A received text that is not valid UTF-8 has
 therefore changed: verifiers decode it with replacement characters to find the
-seal, and report **altered** if the seal is genuine, even if the decoded text
+seal, and report **altered** if the seal is valid, even if the decoded text
 happens to match.
 
 ## 10. Revocation notices
