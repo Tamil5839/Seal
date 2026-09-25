@@ -8,6 +8,7 @@ const modules = [
   './seal-verify.test.js',
   './text.test.js',
   './png.test.js',
+  './backup.test.js',
 ];
 
 const summary = document.getElementById('summary');
