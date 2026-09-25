@@ -5,6 +5,9 @@ import { runAll } from './harness.js';
 const modules = [
   './core.test.js',
   './manifest.test.js',
+  './seal-verify.test.js',
+  './text.test.js',
+  './png.test.js',
 ];
 
 const summary = document.getElementById('summary');

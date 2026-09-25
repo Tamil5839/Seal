@@ -17,6 +17,20 @@ export function utf8Decode(bytes) {
   return new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes);
 }
 
+/** Lenient UTF-8 decode: invalid bytes become U+FFFD. Keeps a BOM. */
+export function utf8DecodeLenient(bytes) {
+  return new TextDecoder('utf-8', { fatal: false, ignoreBOM: true }).decode(bytes);
+}
+
+/** Index of the last occurrence of `needle` in `haystack` at or after `from`, or -1. */
+export function lastIndexOfBytes(haystack, needle, from = 0) {
+  outer: for (let i = haystack.length - needle.length; i >= from; i--) {
+    for (let j = 0; j < needle.length; j++) if (haystack[i + j] !== needle[j]) continue outer;
+    return i;
+  }
+  return -1;
+}
+
 /** Return a Uint8Array view of ArrayBuffer / typed array input. */
 export function asBytes(data) {
   if (data instanceof Uint8Array) return data;
